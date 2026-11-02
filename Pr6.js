@@ -45,7 +45,7 @@ class Stack {
   toString() {
     const items = [];
     for (let node = this.#top; node !== null; node = node.next) items.push(node.data);
-    return items.length ? `[top] ${items.join(" -> ")} [bottom]` : "[порожній стек]";
+    return items.length ? `[top] ${items.join(" -> ")} ` : "[порожній стек]";
   }
 }
 
