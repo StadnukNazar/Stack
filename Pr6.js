@@ -1,133 +1,80 @@
-class ArrayQueue {
-  constructor(capacity = 13) {
-    this.data = new Array(capacity);
-    this.capacity = capacity;
-    this.head = 0;
-    this.tail = 0;
-    this.count = 0;
-  }
-
-  size() {
-    return this.count;
-  }
-
-  isEmpty() {
-    return this.count === 0;
-  }
-
-  enqueue(value) {
-    if (this.count === this.capacity) {
-      console.log("Черга переповнена, елемент не додано:", value);
-      return false;
-    }
-    this.data[this.tail] = value;
-    this.tail = (this.tail + 1) % this.capacity;
-    this.count++;
-    return true;
-  }
-
-  dequeue() {
-    if (this.isEmpty()) {
-      console.log("Черга порожня");
-      return undefined;
-    }
-    const value = this.data[this.head];
-    this.data[this.head] = undefined;
-    this.head = (this.head + 1) % this.capacity;
-    this.count--;
-    return value;
-  }
-
-  print() {
-    const items = [];
-    for (let i = 0; i < this.count; i++) {
-      items.push(this.data[(this.head + i) % this.capacity]);
-    }
-    console.log("Черга (масив):", items.length ? items.join(" <- ") : "порожня");
-  }
-}
-
 class Node {
-  constructor(value) {
-    this.value = value;
-    this.next = null;
+  constructor(data, next = null) {
+    this.data = data;
+    this.next = next;
   }
 }
 
-class LinkedQueue {
-  constructor() {
-    this.head = null;
-    this.tail = null;
-    this.count = 0;
+class Stack {
+  #top = null;
+  #size = 0;
+
+  push(value) {
+    this.#top = new Node(value, this.#top);
+    this.#size++;
   }
 
-  size() {
-    return this.count;
-  }
-
-  isEmpty() {
-    return this.count === 0;
-  }
-
-  enqueue(value) {
-    const node = new Node(value);
-    if (this.tail) {
-      this.tail.next = node;
-    } else {
-      this.head = node;
-    }
-    this.tail = node;
-    this.count++;
-  }
-
-  dequeue() {
-    if (this.isEmpty()) {
-      console.log("Черга порожня");
-      return undefined;
-    }
-    const value = this.head.value;
-    this.head = this.head.next;
-    if (!this.head) this.tail = null;
-    this.count--;
+  pop() {
+    if (this.#top === null) throw new Error("Стек порожній");
+    const value = this.#top.data;
+    this.#top = this.#top.next;
+    this.#size--;
     return value;
   }
 
-  print() {
+  peek() {
+    if (this.#top === null) throw new Error("Стек порожній");
+    return this.#top.data;
+  }
+
+  clear() {
+    this.#top = null;
+    this.#size = 0;
+  }
+
+  count() {
+    let n = 0;
+    for (let node = this.#top; node !== null; node = node.next) n++;
+    return n;
+  }
+
+  size() {
+    return this.#size;
+  }
+
+  toString() {
     const items = [];
-    let current = this.head;
-    while (current) {
-      items.push(current.value);
-      current = current.next;
-    }
-    console.log("Черга (вузли):", items.length ? items.join(" <- ") : "порожня");
+    for (let node = this.#top; node !== null; node = node.next) items.push(node.data);
+    return items.length ? `[top] ${items.join(" -> ")} ]` : "[порожній стек]";
   }
 }
 
-function demo(name, queue) {
-  console.log(`\n===== ${name} =====`);
-  queue.print();
-  console.log("Розмір:", queue.size());
+const s = new Stack();
+console.log("Новий стек:", String(s), "| size() =", s.size());
 
-  [8, 4, 5, 6, 9].forEach((v) => queue.enqueue(v));
-  console.log("Після додавання 8, 4, 5, 6, 9:");
-  queue.print();
-  console.log("Розмір:", queue.size());
+console.log("\n--- push(): додаємо 11, 22, 33 (як на Рис. 2) ---");
+[11, 22, 33].forEach(v => { s.push(v); console.log(`push(${v})  ->`, String(s)); });
 
-  console.log("Видалено:", queue.dequeue());
-  console.log("Видалено:", queue.dequeue());
-  queue.print();
-  console.log("Розмір:", queue.size());
+console.log("\n--- peek() і toString() (елементи не видаляються) ---");
+console.log("peek()     =", s.peek());
+console.log("toString() =", s.toString());
 
-  queue.enqueue(15);
-  queue.enqueue(9);
-  console.log("Після додавання 15, 9:");
-  queue.print();
+console.log("\n--- size() і count() ---");
+console.log("size()  =", s.size());
+console.log("count() =", s.count());
 
-  while (!queue.isEmpty()) queue.dequeue();
-  console.log("Після повного очищення:");
-  queue.print();
-  queue.dequeue();
+console.log("\n--- pop(): беремо елементи з вершини ---");
+console.log("pop() =", s.pop(), " ->", String(s));
+console.log("pop() =", s.pop(), " ->", String(s));
+console.log("size() =", s.size());
+
+console.log("\n--- clear() ---");
+s.push(7); s.push(8);
+console.log("перед clear():", String(s), "| size() =", s.size());
+s.clear();
+console.log("після clear():", String(s), "| size() =", s.size(), "| count() =", s.count());
+
+console.log("\n--- pop() / peek() на порожньому стеку ---");
+for (const op of ["pop", "peek"]) {
+  try { s[op](); } catch (e) { console.log(`${op}() -> помилка: ${e.message}`); }
 }
-
-demo("Черга на масиві", new ArrayQueue(13));
-demo("Черга на вузлах", new LinkedQueue());
